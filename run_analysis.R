@@ -33,6 +33,11 @@ extractMeanAndSdv <- function(measurements) {
     measurements[, grep("mean\\(\\)|std\\(\\)", features$label)]
 }
 
+# Activities labels
+ACTIVITIES_FILE = "activity_labels.txt"
+activities <- read.table(uciDataFile(ACTIVITIES_FILE),
+                         col.names=c("id", "label"))
+
 TEST_DATA = uciTestFile("/X_test.txt")
 TEST_SUBJ_DATA = uciTestFile("/subject_test.txt")
 TEST_ACTIVITY_DATA  = uciTestFile("/y_test.txt")
@@ -44,13 +49,15 @@ TRAIN_ACTIVITY_DATA  = uciTrainFile("/y_train.txt")
 testMeasurements <- read.table(TEST_DATA)
 testMeansStds <- extractMeanAndSdv(testMeasurements)
 testSubject <- read.table(TEST_SUBJ_DATA)
-testActivity <- read.table(TEST_ACTIVITY_DATA)
-testData <- cbind(testSubject, testActivity, testMeansStds)
+testActivity <- read.table(TEST_ACTIVITY_DATA, col.names=c("id"))
+testActivityLabel <- merge(testActivity, activities)
+testData <- cbind(testSubject, testActivityLabel, testMeansStds)
 
 trainMeasuraments <- read.table(TRAIN_DATA)
 trainMeansStds <- extractMeanAndSdv(trainMeasuraments)
 trainSubject <- read.table(TRAIN_SUBJ_DATA)
-trainActivity <- read.table(TRAIN_ACTIVITY_DATA)
-trainData <- cbind(trainSubject, trainActivity, trainMeansStds)
+trainActivity <- read.table(TRAIN_ACTIVITY_DATA, col.names=c("id"))
+trainActivityLabel <- merge(trainActivity, activities)
+trainData <- cbind(trainSubject, trainActivityLabel, trainMeansStds)
 
 mergedData <- rbind(testData, trainData)
