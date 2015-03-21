@@ -10,26 +10,47 @@
 
 library(dplyr)
 
-UCI_HAR_DATA_DIR = "./UCI HAR Dataset"
-TEST_DATA_DIR = paste0(UCI_HAR_DATA_DIR, "/test")
-TRAIN_DATA_DIR = paste0(UCI_HAR_DATA_DIR, "/train")
+UCI_HAR_DIR = "./UCI HAR Dataset"
+TEST_DIR = "/test"
+TRAIN_DIR = "/train"
 
-TEST_DATA = paste0(TEST_DATA_DIR, "/X_test.txt")
-TEST_SUBJ_DATA = paste0(TEST_DATA_DIR, "/subject_test.txt")
-TEST_ACTIVITY_DATA  = paste0(TEST_DATA_DIR, "/y_test.txt")
+uciDataFile <- function(filename) { paste0(UCI_HAR_DIR, "/", filename) }
+uciTestFile <- function(filename) {
+    paste0(UCI_HAR_DIR, "/", TEST_DIR, "/", filename)
+}
+uciTrainFile <- function(filename) {
+    paste0(UCI_HAR_DIR, "/", TRAIN_DIR, "/", filename)
+}
 
-TRAIN_DATA = paste0(TRAIN_DATA_DIR, "/X_train.txt")
-TRAIN_SUBJ_DATA = paste0(TRAIN_DATA_DIR, "/subject_train.txt")
-TRAIN_ACTIVITY_DATA  = paste0(TRAIN_DATA_DIR, "/y_train.txt")
+# Load the feature labels.
+FEATURES_FILE = "features.txt"
+features = read.table(uciDataFile(FEATURES_FILE), col.names=c("index", "label"))
 
-testVars <- read.table(TEST_DATA, sep = "", header = FALSE)
-testSubject <- read.table(TEST_SUBJ_DATA, sep = "", header = FALSE)
-testActivity <- read.table(TEST_ACTIVITY_DATA, sep = "", header = FALSE)
-testData <- cbind(testSubject, testActivity, testVars)
+# Extracts only the measuraments of means and standard deviations from
+# the give data frame of measuraments consisting of 561 features.
+# Each feature is labled in the file "UCI HAR Dataset/features.txt".
+extractMeanAndSdv <- function(measurements) {
+    measurements[, grep("mean\\(\\)|std\\(\\)", features$label)]
+}
 
-trainVars <- read.table(TRAIN_DATA, sep = "", header = FALSE)
-trainSubject <- read.table(TRAIN_SUBJ_DATA, sep = "", header = FALSE)
-trainActivity <- read.table(TRAIN_ACTIVITY_DATA, sep = "", header = FALSE)
-trainData <- cbind(trainSubject, trainActivity, trainVars)
+TEST_DATA = uciTestFile("/X_test.txt")
+TEST_SUBJ_DATA = uciTestFile("/subject_test.txt")
+TEST_ACTIVITY_DATA  = uciTestFile("/y_test.txt")
+
+TRAIN_DATA = uciTrainFile("/X_train.txt")
+TRAIN_SUBJ_DATA = uciTrainFile("/subject_train.txt")
+TRAIN_ACTIVITY_DATA  = uciTrainFile("/y_train.txt")
+
+testMeasurements <- read.table(TEST_DATA)
+testMeansStds <- extractMeanAndSdv(testMeasurements)
+testSubject <- read.table(TEST_SUBJ_DATA)
+testActivity <- read.table(TEST_ACTIVITY_DATA)
+testData <- cbind(testSubject, testActivity, testMeansStds)
+
+trainMeasuraments <- read.table(TRAIN_DATA)
+trainMeansStds <- extractMeanAndSdv(trainMeasuraments)
+trainSubject <- read.table(TRAIN_SUBJ_DATA)
+trainActivity <- read.table(TRAIN_ACTIVITY_DATA)
+trainData <- cbind(trainSubject, trainActivity, trainMeansStds)
 
 mergedData <- rbind(testData, trainData)
