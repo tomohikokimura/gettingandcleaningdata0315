@@ -78,4 +78,3 @@ trainData <- meansAndStds(TRAIN_DATA, TRAIN_SUBJ_DATA, TRAIN_ACTIVITY_DATA)
 mergedData <- rbind(testData, trainData)
 bySubjectAndActivity <- group_by(mergedData, subject, activity)
 meansPerSubjectActivity <- summarise_each(bySubjectAndActivity, funs(mean))
-
