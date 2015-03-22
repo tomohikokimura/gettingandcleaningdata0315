@@ -8,6 +8,7 @@
 # 5. From the data set in step 4, creates a second, independent tidy data
 #    set with the average of each variable for each activity and each subject.
 
+library(plyr)
 library(dplyr)
 
 UCI_HAR_DIR = "./UCI HAR Dataset"
@@ -45,11 +46,12 @@ extractMeanAndStd <- function(measurements) {
 # Activities labels
 ACTIVITIES_FILE = "activity_labels.txt"
 ACTIVITY_ID_COL = "aid"
+ACTIVITY_COL = "activity"
 activities <- read.table(uciDataFile(ACTIVITIES_FILE),
-                         col.names=c(ACTIVITY_ID_COL, "activity"))
+                         col.names=c(ACTIVITY_ID_COL, ACTIVITY_COL))
 activityLabelsVector <- function(activityDataFile) {
     activityIds <- read.table(activityDataFile, col.names=c(ACTIVITY_ID_COL))
-    select(merge(activityIds, activities), activity)
+    select(join(activityIds, activities), activity)
 }
 
 # Subject ids
@@ -74,3 +76,6 @@ meansAndStds <- function(dataFile, subjectFile, activityFile) {
 testData <- meansAndStds(TEST_DATA, TEST_SUBJ_DATA, TEST_ACTIVITY_DATA)
 trainData <- meansAndStds(TRAIN_DATA, TRAIN_SUBJ_DATA, TRAIN_ACTIVITY_DATA)
 mergedData <- rbind(testData, trainData)
+bySubjectAndActivity <- group_by(mergedData, subject, activity)
+meansPerSubjectActivity <- summarise_each(bySubjectAndActivity, funs(mean))
+
