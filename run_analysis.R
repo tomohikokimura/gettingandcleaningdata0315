@@ -22,6 +22,15 @@ uciTrainFile <- function(filename) {
     paste0(UCI_HAR_DIR, "/", TRAIN_DIR, "/", filename)
 }
 
+# Data files.
+TEST_DATA = uciTestFile("/X_test.txt")
+TEST_SUBJ_DATA = uciTestFile("/subject_test.txt")
+TEST_ACTIVITY_DATA  = uciTestFile("/y_test.txt")
+
+TRAIN_DATA = uciTrainFile("/X_train.txt")
+TRAIN_SUBJ_DATA = uciTrainFile("/subject_train.txt")
+TRAIN_ACTIVITY_DATA  = uciTrainFile("/y_train.txt")
+
 # Load the feature labels.
 FEATURES_FILE = "features.txt"
 features = read.table(uciDataFile(FEATURES_FILE), col.names=c("index", "label"))
@@ -29,7 +38,7 @@ features = read.table(uciDataFile(FEATURES_FILE), col.names=c("index", "label"))
 # Extracts only the measuraments of means and standard deviations from
 # the give data frame of measuraments consisting of 561 features.
 # Each feature is labled in the file "UCI HAR Dataset/features.txt".
-extractMeanAndSdv <- function(measurements) {
+extractMeanAndStd <- function(measurements) {
     measurements[, grep("mean\\(\\)|std\\(\\)", features$label)]
 }
 
@@ -49,26 +58,19 @@ subjectIdsVector <- function(subjectData) {
     read.table(subjectData, col.names=c(SUBJECT_ID_COL))
 }
 
-TEST_DATA = uciTestFile("/X_test.txt")
-TEST_SUBJ_DATA = uciTestFile("/subject_test.txt")
-TEST_ACTIVITY_DATA  = uciTestFile("/y_test.txt")
+# Reads the feature vector table and extract only the measurements on means and
+# starndard deviations, and joins the subsetted feature vectors with
+# corresponding subject IDs and activity labels, with all columns given
+# descriptive names.
+meansAndStds <- function(dataFile, subjectFile, activityFile) {
+    data <- read.table(dataFile)
+    names(data) <- features$label
+    meansStds <- extractMeanAndStd(data)
+    subjects <- subjectIdsVector(subjectFile)
+    activities <- activityLabelsVector(activityFile)
+    cbind(subjects, activities, meansStds)
+}
 
-TRAIN_DATA = uciTrainFile("/X_train.txt")
-TRAIN_SUBJ_DATA = uciTrainFile("/subject_train.txt")
-TRAIN_ACTIVITY_DATA  = uciTrainFile("/y_train.txt")
-
-testMeasurements <- read.table(TEST_DATA)
-names(testMeasurements) <- features$label
-testMeansStds <- extractMeanAndSdv(testMeasurements)
-testSubject <- subjectIdsVector(TEST_SUBJ_DATA)
-testActivityLabel <- activityLabelsVector(TEST_ACTIVITY_DATA)
-testData <- cbind(testSubject, testActivityLabel, testMeansStds)
-
-trainMeasurements <- read.table(TRAIN_DATA)
-names(trainMeasurements) <- features$label
-trainMeansStds <- extractMeanAndSdv(trainMeasurements)
-trainSubject <- subjectIdsVector(TRAIN_SUBJ_DATA)
-trainActivityLabel <- activityLabelsVector(TRAIN_ACTIVITY_DATA)
-trainData <- cbind(trainSubject, trainActivityLabel, trainMeansStds)
-
+testData <- meansAndStds(TEST_DATA, TEST_SUBJ_DATA, TEST_ACTIVITY_DATA)
+trainData <- meansAndStds(TRAIN_DATA, TRAIN_SUBJ_DATA, TRAIN_ACTIVITY_DATA)
 mergedData <- rbind(testData, trainData)
