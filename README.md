@@ -11,21 +11,23 @@ Using Smartphones* data, which satisfies the following characteristics:
 3. For each of the measurements selected above, summarises it by taking a mean
    per each subject and activity.
 4. All the selected features have descriptive column names taken from
-   "features.txt"
+   *features.txt*
 
 This script assumes that the data set is located in the working directory with
 the following directory structure:
 
-> ./UCI HAR Dataset/activity_labels.txt        (activity id/label table)
->                  /features.txt               (feature id/label table)
->                  /train/                     (training data directory)
->                         X_train.tx           (observations)
->                         subject_train.txt    (subjects)
->                         y_train.txt          (activities)
->                  /test/                      (test data directory)
->                        X_test.txt            (observations)
->                        subject_test.txt      (subjects)
->                        y_test.txt            (activities)
+```
+./UCI HAR Dataset/activity_labels.txt        (activity id/label table)
+                 /features.txt               (feature id/label table)
+                 /train/                     (training data directory)
+                        X_train.tx           (observations)
+                        subject_train.txt    (subjects)
+                        y_train.txt          (activities)
+                 /test/                      (test data directory)
+                       X_test.txt            (observations)
+                       subject_test.txt      (subjects)
+                       y_test.txt            (activities)
+```
 
 The original data set can be downloaded from [the UCI site](http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones).
 
@@ -35,7 +37,7 @@ The script contains the following functions:
 * `extractMeanAndStd`: Extracts only the measuraments on mean and standard
                        deviation from the give data frame consisting of 561
                        features. Each feature is labled in the file,
-                       `UCI HAR Dataset/features.txt`.
+                       *UCI HAR Dataset/features.txt*.
 * `activityLabelsVector`: Reads in subject ID vector from a file that
                           corresponds to the training / test data, joins
                           with the activity ID/label table, and keeps only the
@@ -50,9 +52,11 @@ The script contains the following functions:
 ## Tidy data generation process
 The original data were processed in the following way to produce the final tidy
 data set.
-1. For each of the training and test data sets, do the following,
+
+1. For each of the training and test data sets, do the following
+   (`meansAndStds`),
   1. Read the feature vectors.
-  2. Set the column name to descriptive labels taken from `features.txt`.
+  2. Set the column name to descriptive labels taken from *features.txt*.
   3. Keeps only the means and STDs, reducing the feature size.
   4. Generates a subject ID vector.
   5. Generates an activity label vector.
