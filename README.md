@@ -1,4 +1,4 @@
-# `run_analysis.R` - an R script to generate a tidy data set
+# An R script to generate a tidy data set
 
 ## Overview
 This repository contains an R script, `run_analysis.R`, that generates a tidy
