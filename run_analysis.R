@@ -35,8 +35,19 @@ extractMeanAndSdv <- function(measurements) {
 
 # Activities labels
 ACTIVITIES_FILE = "activity_labels.txt"
+ACTIVITY_ID_COL = "aid"
 activities <- read.table(uciDataFile(ACTIVITIES_FILE),
-                         col.names=c("id", "label"))
+                         col.names=c(ACTIVITY_ID_COL, "activity"))
+activityLabelsVector <- function(activityDataFile) {
+    activityIds <- read.table(activityDataFile, col.names=c(ACTIVITY_ID_COL))
+    select(merge(activityIds, activities), activity)
+}
+
+# Subject ids
+SUBJECT_ID_COL = "subject"
+subjectIdsVector <- function(subjectData) {
+    read.table(subjectData, col.names=c(SUBJECT_ID_COL))
+}
 
 TEST_DATA = uciTestFile("/X_test.txt")
 TEST_SUBJ_DATA = uciTestFile("/subject_test.txt")
@@ -47,17 +58,17 @@ TRAIN_SUBJ_DATA = uciTrainFile("/subject_train.txt")
 TRAIN_ACTIVITY_DATA  = uciTrainFile("/y_train.txt")
 
 testMeasurements <- read.table(TEST_DATA)
+names(testMeasurements) <- features$label
 testMeansStds <- extractMeanAndSdv(testMeasurements)
-testSubject <- read.table(TEST_SUBJ_DATA)
-testActivity <- read.table(TEST_ACTIVITY_DATA, col.names=c("id"))
-testActivityLabel <- merge(testActivity, activities)
+testSubject <- subjectIdsVector(TEST_SUBJ_DATA)
+testActivityLabel <- activityLabelsVector(TEST_ACTIVITY_DATA)
 testData <- cbind(testSubject, testActivityLabel, testMeansStds)
 
-trainMeasuraments <- read.table(TRAIN_DATA)
-trainMeansStds <- extractMeanAndSdv(trainMeasuraments)
-trainSubject <- read.table(TRAIN_SUBJ_DATA)
-trainActivity <- read.table(TRAIN_ACTIVITY_DATA, col.names=c("id"))
-trainActivityLabel <- merge(trainActivity, activities)
+trainMeasurements <- read.table(TRAIN_DATA)
+names(trainMeasurements) <- features$label
+trainMeansStds <- extractMeanAndSdv(trainMeasurements)
+trainSubject <- subjectIdsVector(TRAIN_SUBJ_DATA)
+trainActivityLabel <- activityLabelsVector(TRAIN_ACTIVITY_DATA)
 trainData <- cbind(trainSubject, trainActivityLabel, trainMeansStds)
 
 mergedData <- rbind(testData, trainData)
